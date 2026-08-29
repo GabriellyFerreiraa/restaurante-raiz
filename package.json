@@ -1,0 +1,31 @@
+{
+  "name": "restaurante-raiz",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Raíz — cocina de estación. Landing editorial con menú y reserva. Proyecto de portafolio frontend.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.1.1",
+    "@fontsource-variable/inter": "^5.1.1",
+    "@hookform/resolvers": "^3.10.0",
+    "framer-motion": "^11.18.2",
+    "lenis": "^1.1.20",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.54.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11"
+  }
+}

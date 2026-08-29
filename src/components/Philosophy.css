@@ -1,0 +1,88 @@
+.phil {
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.phil__grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: start;
+}
+
+.phil__statement {
+  margin-top: var(--space-md);
+  font-size: var(--step-4);
+  font-weight: 360;
+  max-width: 18ch;
+}
+
+.phil__body {
+  margin-top: var(--space-md);
+  max-width: 42ch;
+  color: var(--ink-soft);
+}
+
+.phil__facts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--line);
+}
+
+.phil__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.phil__fact-value {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 400;
+  color: var(--accent-deep);
+}
+
+.phil__fact-label {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  line-height: 1.4;
+}
+
+.phil__media {
+  position: sticky;
+  top: calc(var(--header-h) + var(--space-md));
+}
+
+.phil__media .figure {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+}
+
+.phil__caption {
+  margin-top: var(--space-xs);
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+@media (max-width: 60rem) {
+  .phil__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .phil__media {
+    position: static;
+    order: -1;
+  }
+
+  .phil__media .figure {
+    aspect-ratio: 3 / 2;
+  }
+
+  .phil__facts {
+    margin-top: var(--space-lg);
+  }
+}

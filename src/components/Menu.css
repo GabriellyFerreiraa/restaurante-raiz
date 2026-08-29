@@ -1,0 +1,241 @@
+.menu {
+  background: var(--paper-dim);
+  border-block: 1px solid var(--line);
+}
+
+.menu__head {
+  max-width: 40rem;
+}
+
+.menu__title {
+  margin-top: var(--space-sm);
+  font-size: var(--step-4);
+}
+
+.menu__note {
+  margin-top: var(--space-sm);
+  color: var(--ink-soft);
+}
+
+/* ---- tabs ---------------------------------------------------------- */
+.menu__tabs {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.menu__tab {
+  position: relative;
+  padding: 0 0 var(--space-sm);
+  border: 0;
+  background: transparent;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: color 0.3s var(--ease-out);
+}
+
+.menu__tab[data-active="true"] {
+  color: var(--ink);
+}
+
+.menu__tab-underline {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+}
+
+.menu__panel-wrap {
+  margin-top: var(--space-xl);
+}
+
+/* ---- tasting ------------------------------------------------------- */
+.tasting {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(2rem, 6vw, 5rem);
+}
+
+.tasting__name {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+}
+
+.tasting__meta {
+  margin-top: var(--space-2xs);
+  font-size: var(--step-0);
+  color: var(--ink-soft);
+}
+
+.tasting__meta--muted {
+  color: var(--ink-faint);
+  font-size: var(--step--1);
+}
+
+.tasting__desc {
+  margin-top: var(--space-md);
+  max-width: 32ch;
+  color: var(--ink-soft);
+}
+
+.tasting__steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: none;
+}
+
+.tasting__step {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--line);
+}
+
+.tasting__step:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.tasting__step-num {
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  color: var(--accent-deep);
+  padding-top: 0.15rem;
+  min-width: 2ch;
+}
+
+.tasting__step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tasting__step-name {
+  font-size: var(--step-1);
+  font-family: var(--font-display);
+  font-weight: 420;
+}
+
+.tasting__step-note {
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  font-style: italic;
+  text-transform: lowercase;
+}
+
+/* ---- à la carte -------------------------------------------------- */
+.carte {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.carte__group-title {
+  font-size: var(--step-1);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--accent-deep);
+  margin-bottom: var(--space-md);
+}
+
+.carte__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-lg);
+}
+
+@media (min-width: 48rem) {
+  .carte__list {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: clamp(2rem, 5vw, 4rem);
+  }
+}
+
+.carte__item-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.carte__item-name {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 420;
+}
+
+.carte__dots {
+  flex: 1;
+  border-bottom: 1px dotted var(--line-strong);
+  transform: translateY(-0.2em);
+}
+
+.carte__item-price {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.carte__item-desc {
+  margin-top: var(--space-2xs);
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+  max-width: 46ch;
+}
+
+/* ---- diet tags -------------------------------------------------- */
+.menu__tags {
+  display: inline-flex;
+  gap: 0.3rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.menu__tag {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--ink-soft);
+  cursor: help;
+}
+
+.menu__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--line);
+  font-size: var(--step--1);
+  color: var(--ink-faint);
+}
+
+.menu__legend b {
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-right: 0.25rem;
+}
+
+@media (max-width: 52rem) {
+  .tasting {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+}
