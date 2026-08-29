@@ -3,8 +3,7 @@
 Landing editorial para un restaurante ficticio, con menú de estación y reserva
 en línea. **Proyecto 1 de 5** de mi serie de piezas de portafolio frontend.
 
-> Sitio de demostración. Raíz no es un local real; los datos son verosímiles
-> pero inventados.
+**[Ver sitio en vivo →](https://restaurante-raiz.vercel.app)**
 
 ## Qué muestra
 
