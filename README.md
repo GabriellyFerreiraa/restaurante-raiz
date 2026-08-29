@@ -2,7 +2,7 @@
 
 **[Ver sitio en vivo →](https://restaurante-raiz.vercel.app)**
 
-![Raíz](docs/preview.jpg)
+![Raíz](docs/preview.png)
 
 Editorial landing page for a fictional seasonal-kitchen restaurant, with a
 rotating tasting menu and online booking. First of five frontend portfolio
