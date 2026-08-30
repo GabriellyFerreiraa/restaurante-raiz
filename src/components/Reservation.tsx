@@ -276,26 +276,26 @@ export function Reservation() {
                       </p>
                     )}
                   </div>
-
-                  <fieldset className="field field--fieldset">
-                    <legend>{r.form.turn}</legend>
-                    <div
-                      className="chips"
-                      role="radiogroup"
-                      aria-invalid={!!errors.turn}
-                    >
-                      {TURNS.map((tn) => (
-                        <label key={tn} className="chip">
-                          <input type="radio" value={tn} {...register("turn")} />
-                          <span>{tn}</span>
-                        </label>
-                      ))}
-                    </div>
-                    {errors.turn && (
-                      <p className="field__error">{tErr(errors.turn.message)}</p>
-                    )}
-                  </fieldset>
                 </div>
+
+                <fieldset className="field field--fieldset">
+                  <legend>{r.form.turn}</legend>
+                  <div
+                    className="chips"
+                    role="radiogroup"
+                    aria-invalid={!!errors.turn}
+                  >
+                    {TURNS.map((tn) => (
+                      <label key={tn} className="chip">
+                        <input type="radio" value={tn} {...register("turn")} />
+                        <span>{tn}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {errors.turn && (
+                    <p className="field__error">{tErr(errors.turn.message)}</p>
+                  )}
+                </fieldset>
 
                 <fieldset className="field field--fieldset">
                   <legend>{r.form.guests}</legend>

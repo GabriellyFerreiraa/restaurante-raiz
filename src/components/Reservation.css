@@ -79,9 +79,9 @@
   gap: 0.9rem;
 }
 
-/* fecha compacta + turno ancho, así los 4 chips entran en un renglón */
+/* la fecha va sola en su renglón y acotada; los turnos abajo a todo el ancho */
 .rsv__row--date {
-  grid-template-columns: minmax(7rem, 8rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 14rem);
 }
 
 /* ---- fields ---------------------------------------------------- */
@@ -110,6 +110,8 @@
 .field select,
 .field textarea {
   width: 100%;
+  /* sin esto, input[type=date] impone su ancho mínimo y se pisa con los turnos */
+  min-width: 0;
   padding: 0.55rem 0.7rem;
   font-size: var(--step-0); /* >=16px: evita el zoom automático en iOS */
   border: 1px solid var(--line-strong);

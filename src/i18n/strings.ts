@@ -224,6 +224,7 @@ const es = {
     closed: "Domingo, lunes y martes: cerrado",
     newsletter: "Newsletter",
     backToTop: "Volver arriba",
+    author: "Diseño y desarrollo de Gabrielly Ferreira",
     rights: (year: number) =>
       `© ${year} Raíz. Sitio de demostración, proyecto de portafolio. No es un local real.`,
   },
@@ -448,6 +449,7 @@ const en: Dict = {
     closed: "Sunday, Monday and Tuesday: closed",
     newsletter: "Newsletter",
     backToTop: "Back to top",
+    author: "Designed and built by Gabrielly Ferreira",
     rights: (year: number) =>
       `© ${year} Raíz. Demo site, a portfolio project. Not a real venue.`,
   },
@@ -670,6 +672,7 @@ const pt: Dict = {
     closed: "Domingo, segunda e terça: fechado",
     newsletter: "Newsletter",
     backToTop: "Voltar ao topo",
+    author: "Design e desenvolvimento de Gabrielly Ferreira",
     rights: (year: number) =>
       `© ${year} Raíz. Site de demonstração, projeto de portfólio. Não é um local real.`,
   },

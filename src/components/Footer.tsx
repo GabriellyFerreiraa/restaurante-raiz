@@ -2,6 +2,10 @@ import { useT } from "../i18n/lang";
 import { useScrollTo } from "./SmoothScroll";
 import "./Footer.css";
 
+const GITHUB_URL = "https://github.com/GabriellyFerreiraa";
+const LINKEDIN_URL =
+  "https://www.linkedin.com/in/gabrielly-ferreira-619609113/";
+
 export function Footer() {
   const t = useT();
   const f = t.footer;
@@ -66,7 +70,20 @@ export function Footer() {
         <button type="button" onClick={() => scrollTo("#top")}>
           {f.backToTop} ↑
         </button>
-        <p>{f.rights(year)}</p>
+        <div className="footer__meta">
+          <p className="footer__author">
+            {f.author}
+            <span className="footer__author-links">
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer noopener">
+                GitHub
+              </a>
+              <a href={LINKEDIN_URL} target="_blank" rel="noreferrer noopener">
+                LinkedIn
+              </a>
+            </span>
+          </p>
+          <p>{f.rights(year)}</p>
+        </div>
       </div>
     </footer>
   );
