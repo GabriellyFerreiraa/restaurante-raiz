@@ -58,3 +58,18 @@ They are centralised in [`src/data/images.ts`](src/data/images.ts): replace each
 photos. `<Figure>` builds the `srcset` from that file.
 
 ## Structure
+```
+src/
+  components/      one .tsx + .css per component
+    SmoothScroll   Lenis provider + useScrollTo hook
+    Figure         responsive image with fallback
+    Reveal         scroll-reveal wrapper
+  data/            menu and images (content separated from UI)
+  hooks/           useScrolled
+  lib/             format.ts (ARS prices, es-AR dates)
+  styles/          tokens.css · global.css · buttons.css
+```
+
+---
+
+Gabrielly Ferreira · [GitHub](https://github.com/GabriellyFerreiraa) · [LinkedIn](https://www.linkedin.com/in/gabrielly-ferreira-619609113/)
