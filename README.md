@@ -28,6 +28,25 @@ pieces.
   `tablist`/`tabpanel`, skip link, visible focus.
 - **Responsive** from 320px to wide screens, with no horizontal scroll.
 
+## Languages
+
+The site ships in Spanish, English and Portuguese, switchable from the header.
+
+The interesting part isn't the copy: it's that everything that surfaces text
+follows the language. Zod validation messages are stored as keys rather than
+strings, so form errors translate along with the rest of the interface instead
+of staying in the original language. Reservation dates are formatted through
+`Intl` with the active locale. `document.documentElement.lang` and the page
+title update on switch, which matters for screen readers.
+
+Two deliberate exceptions: the site opens in Spanish regardless of browser
+locale, since the restaurant is in Buenos Aires, and prices stay formatted in
+`es-AR` because that is the currency actually charged.
+
+Translations live in [`src/i18n/strings.ts`](src/i18n/strings.ts), one object
+per language with a shared shape, so a missing key fails at compile time rather
+than at runtime.
+
 ## Stack
 
 Vite · React 19 · TypeScript · Framer Motion · React Hook Form · Zod · Lenis ·
