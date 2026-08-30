@@ -1,30 +1,28 @@
 import { useId, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Reveal } from "./Reveal";
 import { price } from "../lib/format";
-import {
-  DIET_LABEL,
-  alacarte,
-  season,
-  seasonNote,
-  tasting,
-  type DietTag,
-} from "../data/menu";
+import { useT } from "../i18n/lang";
+import type { Dict } from "../i18n/strings";
+import { ALACARTE, DIET_TAGS, TASTING, type DietTag } from "../data/menu";
 import "./Menu.css";
+
+type MenuText = Dict["menu"];
 
 type TabId = "degustacion" | "carta";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "degustacion", label: "Degustación" },
-  { id: "carta", label: "À la carte" },
-];
-
-function Tags({ tags }: { tags?: DietTag[] }) {
+function Tags({
+  tags,
+  labels,
+}: {
+  tags?: DietTag[];
+  labels: Record<DietTag, string>;
+}) {
   if (!tags?.length) return null;
   return (
     <span className="menu__tags">
       {tags.map((t) => (
-        <abbr key={t} className="menu__tag" title={DIET_LABEL[t]}>
+        <abbr key={t} className="menu__tag" title={labels[t]}>
           {t}
         </abbr>
       ))}
@@ -33,35 +31,42 @@ function Tags({ tags }: { tags?: DietTag[] }) {
 }
 
 export function Menu() {
+  const t = useT();
+  const m = t.menu;
   const [tab, setTab] = useState<TabId>("degustacion");
   const reduceMotion = useReducedMotion();
   const panelId = useId();
+
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "degustacion", label: m.tabs.tasting },
+    { id: "carta", label: m.tabs.carte },
+  ];
 
   return (
     <section className="menu section" id="menu">
       <div className="container">
         <Reveal className="menu__head">
-          <p className="eyebrow">El menú · {season}</p>
-          <h2 className="menu__title">Lo que estamos cocinando</h2>
-          <p className="menu__note">{seasonNote}</p>
+          <p className="eyebrow">{m.eyebrow}</p>
+          <h2 className="menu__title">{m.title}</h2>
+          <p className="menu__note">{m.note}</p>
         </Reveal>
 
-        <div className="menu__tabs" role="tablist" aria-label="Tipo de menú">
-          {TABS.map((t) => {
-            const active = t.id === tab;
+        <div className="menu__tabs" role="tablist" aria-label={m.typeAria}>
+          {tabs.map((tb) => {
+            const active = tb.id === tab;
             return (
               <button
-                key={t.id}
+                key={tb.id}
                 role="tab"
-                id={`tab-${t.id}`}
+                id={`tab-${tb.id}`}
                 aria-selected={active}
-                aria-controls={`${panelId}-${t.id}`}
+                aria-controls={`${panelId}-${tb.id}`}
                 tabIndex={active ? 0 : -1}
                 className="menu__tab"
                 data-active={active}
-                onClick={() => setTab(t.id)}
+                onClick={() => setTab(tb.id)}
               >
-                {t.label}
+                {tb.label}
                 {active && (
                   <motion.span
                     className="menu__tab-underline"
@@ -75,53 +80,55 @@ export function Menu() {
         </div>
 
         <div className="menu__panel-wrap">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={tab}
-              id={`${panelId}-${tab}`}
-              role="tabpanel"
-              aria-labelledby={`tab-${tab}`}
-              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
-              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {tab === "degustacion" ? <Tasting /> : <ALaCarte />}
-            </motion.div>
-          </AnimatePresence>
+          {/* swap por `key`: React desmonta el panel anterior y monta el nuevo
+              con un fade de entrada. Sin AnimatePresence => sin animación de
+              salida que pueda quedarse trabada (pestaña en segundo plano, etc.). */}
+          <motion.div
+            key={tab}
+            id={`${panelId}-${tab}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${tab}`}
+            initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {tab === "degustacion" ? <Tasting m={m} /> : <ALaCarte m={m} />}
+          </motion.div>
         </div>
 
         <p className="menu__legend">
-          {(Object.keys(DIET_LABEL) as DietTag[]).map((t) => (
-            <span key={t}>
-              <b>{t}</b> {DIET_LABEL[t]}
+          {DIET_TAGS.map((tag) => (
+            <span key={tag}>
+              <b>{tag}</b> {m.diet[tag]}
             </span>
           ))}
-          <span>Precios en pesos, servicio no incluido.</span>
+          <span>{m.pricesNote}</span>
         </p>
       </div>
     </section>
   );
 }
 
-function Tasting() {
+function Tasting({ m }: { m: MenuText }) {
   return (
     <div className="tasting">
       <div className="tasting__aside">
-        <p className="tasting__name">{tasting.name}</p>
+        <p className="tasting__name">{m.tasting.name}</p>
         <p className="tasting__meta">
-          {tasting.courses} pasos · {price(tasting.price)} por persona
+          {m.tasting.perPerson(TASTING.courses, price(TASTING.price))}
         </p>
         <p className="tasting__meta tasting__meta--muted">
-          Maridaje opcional {price(tasting.pairing)}
+          {m.tasting.pairing(price(TASTING.pairing))}
         </p>
-        <p className="tasting__desc">{tasting.description}</p>
+        <p className="tasting__desc">{m.tasting.description}</p>
       </div>
 
       <ol className="tasting__steps">
-        {tasting.steps.map((step, i) => (
-          <li key={step.name} className="tasting__step">
-            <span className="tasting__step-num">{String(i + 1).padStart(2, "0")}</span>
+        {m.tasting.steps.map((step, i) => (
+          <li key={i} className="tasting__step">
+            <span className="tasting__step-num">
+              {String(i + 1).padStart(2, "0")}
+            </span>
             <span className="tasting__step-body">
               <span className="tasting__step-name">{step.name}</span>
               {step.note && (
@@ -135,26 +142,31 @@ function Tasting() {
   );
 }
 
-function ALaCarte() {
+function ALaCarte({ m }: { m: MenuText }) {
   return (
     <div className="carte">
-      {alacarte.map((group) => (
-        <section key={group.group} className="carte__group">
-          <h3 className="carte__group-title">{group.group}</h3>
+      {ALACARTE.map((group) => (
+        <section key={group.id} className="carte__group">
+          <h3 className="carte__group-title">
+            {m.groups[group.id as keyof typeof m.groups]}
+          </h3>
           <ul className="carte__list">
-            {group.items.map((dish) => (
-              <li key={dish.name} className="carte__item">
-                <div className="carte__item-head">
-                  <span className="carte__item-name">
-                    {dish.name}
-                    <Tags tags={dish.tags} />
-                  </span>
-                  <span className="carte__dots" aria-hidden="true" />
-                  <span className="carte__item-price">{price(dish.price)}</span>
-                </div>
-                <p className="carte__item-desc">{dish.description}</p>
-              </li>
-            ))}
+            {group.items.map((dish) => {
+              const text = m.dishes[dish.id];
+              return (
+                <li key={dish.id} className="carte__item">
+                  <div className="carte__item-head">
+                    <span className="carte__item-name">
+                      {text.name}
+                      <Tags tags={dish.tags} labels={m.diet} />
+                    </span>
+                    <span className="carte__dots" aria-hidden="true" />
+                    <span className="carte__item-price">{price(dish.price)}</span>
+                  </div>
+                  <p className="carte__item-desc">{text.desc}</p>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ))}

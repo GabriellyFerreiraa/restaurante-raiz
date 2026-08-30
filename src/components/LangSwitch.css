@@ -1,0 +1,47 @@
+.langsw {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  color: currentColor;
+}
+
+.langsw__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.langsw__sep {
+  opacity: 0.35;
+}
+
+.langsw__btn {
+  padding: 0.25rem 0.15rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s var(--ease-out);
+}
+
+.langsw__btn:hover {
+  opacity: 0.85;
+}
+
+.langsw__btn[data-on="true"] {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: var(--accent);
+}
+
+/* dentro del drawer mobile: más grande, alineado a la izquierda */
+.langsw--drawer {
+  font-size: var(--step-0);
+  padding-top: var(--space-sm);
+}

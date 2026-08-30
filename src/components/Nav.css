@@ -19,8 +19,12 @@
 .nav__bar {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: clamp(1rem, 3vw, 2.25rem);
   height: var(--header-h);
+}
+
+.nav__lang {
+  flex-shrink: 0;
 }
 
 .nav__brand {
@@ -141,7 +145,8 @@
 
 @media (max-width: 56rem) {
   .nav__links,
-  .nav__cta {
+  .nav__cta,
+  .nav__lang {
     display: none;
   }
 
@@ -165,8 +170,8 @@
     height: calc(100dvh - var(--header-h));
   }
 
-  .nav__drawer a,
-  .nav__drawer button {
+  .nav__drawer > a,
+  .nav__drawer > button {
     padding: var(--space-sm) 0;
     border: 0;
     border-bottom: 1px solid var(--line);
@@ -177,8 +182,12 @@
     cursor: pointer;
   }
 
-  .nav__drawer button {
+  .nav__drawer > button {
     color: var(--accent-deep);
     border-bottom: 0;
+  }
+
+  .nav__drawer .langsw--drawer {
+    margin-top: var(--space-xs);
   }
 }

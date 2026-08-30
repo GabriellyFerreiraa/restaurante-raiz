@@ -1,7 +1,10 @@
+import { useT } from "../i18n/lang";
 import { useScrollTo } from "./SmoothScroll";
 import "./Footer.css";
 
 export function Footer() {
+  const t = useT();
+  const f = t.footer;
   const scrollTo = useScrollTo();
   const year = new Date().getFullYear();
 
@@ -10,15 +13,15 @@ export function Footer() {
       <div className="footer__grid container container--wide">
         <div className="footer__brand">
           <p className="footer__word">Raíz</p>
-          <p className="footer__tagline">Cocina de estación desde 2019.</p>
+          <p className="footer__tagline">{f.tagline}</p>
         </div>
 
         <div className="footer__col">
-          <h3>Visitá</h3>
+          <h3>{f.visit}</h3>
           <address>
-            Gorriti 4820, Palermo
+            {f.address[0]}
             <br />
-            Ciudad de Buenos Aires
+            {f.address[1]}
           </address>
           <p>
             <a
@@ -26,23 +29,23 @@ export function Footer() {
               target="_blank"
               rel="noreferrer noopener"
             >
-              Cómo llegar
+              {f.directions}
             </a>
           </p>
         </div>
 
         <div className="footer__col">
-          <h3>Horarios</h3>
+          <h3>{f.hours}</h3>
           <p>
-            Miércoles a sábado
+            {f.hoursLine1}
             <br />
-            Turnos 19:00 y 21:15
+            {f.hoursLine2}
           </p>
-          <p className="footer__muted">Domingo, lunes y martes: cerrado</p>
+          <p className="footer__muted">{f.closed}</p>
         </div>
 
         <div className="footer__col">
-          <h3>Contacto</h3>
+          <h3>{f.contact}</h3>
           <p>
             <a href="tel:+541148200000">+54 11 4820 0000</a>
             <br />
@@ -53,7 +56,7 @@ export function Footer() {
               Instagram
             </a>
             <a href="https://ig.com" target="_blank" rel="noreferrer noopener">
-              Newsletter
+              {f.newsletter}
             </a>
           </p>
         </div>
@@ -61,12 +64,9 @@ export function Footer() {
 
       <div className="footer__bar container container--wide">
         <button type="button" onClick={() => scrollTo("#top")}>
-          Volver arriba ↑
+          {f.backToTop} ↑
         </button>
-        <p>
-          © {year} Raíz. Sitio de demostración — proyecto de portafolio, no es un
-          local real.
-        </p>
+        <p>{f.rights(year)}</p>
       </div>
     </footer>
   );

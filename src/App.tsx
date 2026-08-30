@@ -1,3 +1,4 @@
+import { LangProvider, useT } from "./i18n/lang";
 import { SmoothScroll } from "./components/SmoothScroll";
 import { Nav } from "./components/Nav";
 import { Hero } from "./components/Hero";
@@ -7,11 +8,12 @@ import { Space } from "./components/Space";
 import { Reservation } from "./components/Reservation";
 import { Footer } from "./components/Footer";
 
-export function App() {
+function Site() {
+  const t = useT();
   return (
     <SmoothScroll>
       <a className="skip-link" href="#menu">
-        Saltar al menú
+        {t.skipLink}
       </a>
       <Nav />
       <main>
@@ -23,5 +25,13 @@ export function App() {
       </main>
       <Footer />
     </SmoothScroll>
+  );
+}
+
+export function App() {
+  return (
+    <LangProvider>
+      <Site />
+    </LangProvider>
   );
 }

@@ -1,44 +1,51 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { z } from "zod";
 
 import { Reveal } from "./Reveal";
 import { humanDate, isoInDays, price, todayISO } from "../lib/format";
-import { tasting } from "../data/menu";
+import { useLang } from "../i18n/lang";
+import { DATE_LOCALE } from "../i18n/strings";
+import { TASTING } from "../data/menu";
 import "./Reservation.css";
 
 const TURNS = ["19:00", "19:30", "21:15", "21:45"] as const;
-const OCCASIONS = ["Sin ocasión especial", "Cumpleaños", "Aniversario", "Cena de trabajo", "Celebración"] as const;
+const OCCASION_IDS = [
+  "none",
+  "birthday",
+  "anniversary",
+  "business",
+  "celebration",
+] as const;
 const MIN_DATE = todayISO();
 const MAX_DATE = isoInDays(60);
 const NOTES_MAX = 280;
+const BIG_GROUPS_MAIL = "eventos@raiz.rest";
 
+// El esquema usa CLAVES de error (estables); el texto se traduce al renderizar.
 const schema = z.object({
   date: z
     .string()
-    .min(1, "Elegí una fecha")
-    .refine((v) => v >= MIN_DATE, "Esa fecha ya pasó")
-    .refine((v) => v <= MAX_DATE, "Tomamos reservas con hasta 60 días de anticipación"),
-  turn: z.enum(TURNS, { message: "Elegí un turno" }),
+    .min(1, "date.required")
+    .refine((v) => v >= MIN_DATE, "date.past")
+    .refine((v) => v <= MAX_DATE, "date.future"),
+  turn: z.enum(TURNS, { message: "turn.required" }),
   guests: z.number().int().min(1).max(8),
-  name: z.string().trim().min(2, "Ingresá tu nombre"),
-  email: z.string().trim().email("Revisá el email"),
+  name: z.string().trim().min(2, "name.min"),
+  email: z.string().trim().email("email.invalid"),
   phone: z
     .string()
     .trim()
-    .min(6, "Ingresá un teléfono de contacto")
-    .regex(/^[\d\s+()-]+$/, "Solo números y + ( ) -"),
-  occasion: z.enum(OCCASIONS).optional(),
-  notes: z.string().max(NOTES_MAX, `Máximo ${NOTES_MAX} caracteres`).optional(),
-  consent: z.boolean().refine((v) => v, {
-    message: "Necesitamos tu confirmación para guardar la reserva",
-  }),
+    .min(6, "phone.min")
+    .regex(/^[\d\s+()-]+$/, "phone.chars"),
+  occasion: z.enum(OCCASION_IDS).optional(),
+  notes: z.string().max(NOTES_MAX, "notes.max").optional(),
+  consent: z.boolean().refine((v) => v, { message: "consent.required" }),
 });
 
 type FormValues = z.infer<typeof schema>;
-
 type Status = "idle" | "submitting" | "success" | "error";
 
 interface Confirmation {
@@ -74,6 +81,9 @@ function submitReservation(values: FormValues): Promise<Confirmation> {
 }
 
 export function Reservation() {
+  const { t, lang } = useLang();
+  const r = t.reservation;
+  const locale = DATE_LOCALE[lang];
   const reduceMotion = useReducedMotion();
   const [status, setStatus] = useState<Status>("idle");
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
@@ -94,7 +104,7 @@ export function Reservation() {
       name: "",
       email: "",
       phone: "",
-      occasion: OCCASIONS[0],
+      occasion: "none",
       notes: "",
       consent: false,
     },
@@ -105,9 +115,15 @@ export function Reservation() {
   const notes = watch("notes") ?? "";
 
   const estimate = useMemo(
-    () => (guests > 0 ? price(guests * tasting.price) : null),
-    [guests],
+    () =>
+      guests > 0
+        ? r.form.estimate(price(guests * TASTING.price), price(TASTING.price))
+        : null,
+    [guests, r],
   );
+
+  /** traduce una clave de error de zod */
+  const tErr = (key?: string) => (key ? r.errors[key] ?? key : "");
 
   const onSubmit = handleSubmit(async (values) => {
     setStatus("submitting");
@@ -138,49 +154,44 @@ export function Reservation() {
     <section className="rsv section" id="reservar">
       <div className="rsv__grid container container--wide">
         <Reveal className="rsv__intro">
-          <p className="eyebrow">Reservá</p>
-          <h2 className="rsv__title">Una mesa para toda la noche</h2>
-          <p className="rsv__lede">
-            Confirmás en el momento. Te mandamos un mail con el detalle y, si
-            hace falta cambiar algo, respondés ese mismo mail.
-          </p>
+          <p className="eyebrow">{r.eyebrow}</p>
+          <h2 className="rsv__title">{r.title}</h2>
+          <p className="rsv__lede">{r.lede}</p>
 
           <dl className="rsv__facts">
             <div>
-              <dt>Horarios</dt>
-              <dd>Miércoles a sábado · turnos 19:00 y 21:15</dd>
+              <dt>{r.facts[0].dt}</dt>
+              <dd>{r.facts[0].dd}</dd>
             </div>
             <div>
-              <dt>Grupos grandes</dt>
+              <dt>{r.facts[1].dt}</dt>
               <dd>
-                Más de 8 personas:{" "}
-                <a href="mailto:eventos@raiz.rest">eventos@raiz.rest</a>
+                {r.facts[1].dd}{" "}
+                <a href={`mailto:${BIG_GROUPS_MAIL}`}>{BIG_GROUPS_MAIL}</a>
               </dd>
             </div>
             <div>
-              <dt>Cancelaciones</dt>
-              <dd>Sin cargo hasta 24 h antes.</dd>
+              <dt>{r.facts[2].dt}</dt>
+              <dd>{r.facts[2].dd}</dd>
             </div>
           </dl>
         </Reveal>
 
         <Reveal className="rsv__panel" delay={0.1}>
           <div aria-live="polite" className="u-visually-hidden">
-            {busy && "Enviando la reserva…"}
-            {status === "success" && "Reserva confirmada."}
-            {status === "error" && "No pudimos confirmar la reserva."}
+            {busy && r.live.submitting}
+            {status === "success" && r.live.success}
+            {status === "error" && r.live.error}
           </div>
 
-          <AnimatePresence mode="wait" initial={false}>
-            {status === "success" && confirmation ? (
-              <motion.div
-                key="confirmed"
-                className="rsv__confirmed"
-                initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              >
+          {status === "success" && confirmation ? (
+            <motion.div
+              key="confirmed"
+              className="rsv__confirmed"
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            >
                 <span className="rsv__check" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="24" height="24">
                     <path
@@ -194,23 +205,22 @@ export function Reservation() {
                   </svg>
                 </span>
                 <h3 className="rsv__confirmed-title">
-                  Listo, {confirmation.name.split(" ")[0]}.
+                  {r.confirmed.title(confirmation.name.split(" ")[0])}
                 </h3>
                 <p className="rsv__confirmed-copy">
-                  Guardamos tu mesa. Te llega el detalle por mail con el código{" "}
-                  <b>{confirmation.code}</b>.
+                  {r.confirmed.copy(confirmation.code)}
                 </p>
                 <dl className="rsv__summary">
                   <div>
-                    <dt>Día</dt>
-                    <dd>{humanDate(confirmation.date)}</dd>
+                    <dt>{r.confirmed.summary.day}</dt>
+                    <dd>{humanDate(confirmation.date, locale)}</dd>
                   </div>
                   <div>
-                    <dt>Turno</dt>
-                    <dd>{confirmation.turn} h</dd>
+                    <dt>{r.confirmed.summary.turn}</dt>
+                    <dd>{r.confirmed.turnUnit(confirmation.turn)}</dd>
                   </div>
                   <div>
-                    <dt>Comensales</dt>
+                    <dt>{r.confirmed.summary.guests}</dt>
                     <dd>{confirmation.guests}</dd>
                   </div>
                 </dl>
@@ -219,7 +229,7 @@ export function Reservation() {
                   className="btn btn--ghost"
                   onClick={startOver}
                 >
-                  Hacer otra reserva
+                  {r.confirmed.again}
                 </button>
               </motion.div>
             ) : (
@@ -234,23 +244,20 @@ export function Reservation() {
               >
                 {showErrorBanner && (
                   <div className="rsv__banner" role="alert">
-                    <span>
-                      No pudimos conectar con el sistema de reservas. Probá de
-                      nuevo en un momento.
-                    </span>
+                    <span>{r.banner.text}</span>
                     <button
                       type="button"
                       onClick={() => setStatus("idle")}
-                      aria-label="Descartar aviso"
+                      aria-label={r.banner.dismiss}
                     >
                       ✕
                     </button>
                   </div>
                 )}
 
-                <div className="rsv__row">
+                <div className="rsv__row rsv__row--date">
                   <div className="field">
-                    <label htmlFor="rsv-date">Fecha</label>
+                    <label htmlFor="rsv-date">{r.form.date}</label>
                     <input
                       id="rsv-date"
                       type="date"
@@ -261,50 +268,54 @@ export function Reservation() {
                       {...register("date")}
                     />
                     {date && !errors.date && (
-                      <p className="field__hint">{humanDate(date)}</p>
+                      <p className="field__hint">{humanDate(date, locale)}</p>
                     )}
                     {errors.date && (
                       <p className="field__error" id="rsv-date-err">
-                        {errors.date.message}
+                        {tErr(errors.date.message)}
                       </p>
                     )}
                   </div>
 
                   <fieldset className="field field--fieldset">
-                    <legend>Turno</legend>
-                    <div className="chips" role="radiogroup" aria-invalid={!!errors.turn}>
-                      {TURNS.map((t) => (
-                        <label key={t} className="chip">
-                          <input type="radio" value={t} {...register("turn")} />
-                          <span>{t}</span>
+                    <legend>{r.form.turn}</legend>
+                    <div
+                      className="chips"
+                      role="radiogroup"
+                      aria-invalid={!!errors.turn}
+                    >
+                      {TURNS.map((tn) => (
+                        <label key={tn} className="chip">
+                          <input type="radio" value={tn} {...register("turn")} />
+                          <span>{tn}</span>
                         </label>
                       ))}
                     </div>
                     {errors.turn && (
-                      <p className="field__error">{errors.turn.message}</p>
+                      <p className="field__error">{tErr(errors.turn.message)}</p>
                     )}
                   </fieldset>
                 </div>
 
                 <fieldset className="field field--fieldset">
-                  <legend>Comensales</legend>
+                  <legend>{r.form.guests}</legend>
                   <div className="stepper">
                     <button
                       type="button"
                       onClick={() => setGuests(guests - 1)}
                       disabled={guests <= 1}
-                      aria-label="Quitar un comensal"
+                      aria-label={r.form.removeGuest}
                     >
                       –
                     </button>
                     <output aria-live="polite">
-                      {guests} {guests === 1 ? "persona" : "personas"}
+                      {r.form.guestsUnit(guests)}
                     </output>
                     <button
                       type="button"
                       onClick={() => setGuests(guests + 1)}
                       disabled={guests >= 8}
-                      aria-label="Sumar un comensal"
+                      aria-label={r.form.addGuest}
                     >
                       +
                     </button>
@@ -313,22 +324,18 @@ export function Reservation() {
                       {...register("guests", { valueAsNumber: true })}
                     />
                   </div>
-                  {estimate && (
-                    <p className="field__hint">
-                      Con menú Raíz, estimado {estimate} ({price(tasting.price)} pp).
-                    </p>
-                  )}
+                  {estimate && <p className="field__hint">{estimate}</p>}
                   {guests >= 8 && (
                     <p className="field__hint">
-                      ¿Son más de 8? Escribinos a{" "}
-                      <a href="mailto:eventos@raiz.rest">eventos@raiz.rest</a>.
+                      {r.form.moreThan8}{" "}
+                      <a href={`mailto:${BIG_GROUPS_MAIL}`}>{BIG_GROUPS_MAIL}</a>.
                     </p>
                   )}
                 </fieldset>
 
                 <div className="rsv__row">
                   <div className="field">
-                    <label htmlFor="rsv-name">Nombre y apellido</label>
+                    <label htmlFor="rsv-name">{r.form.name}</label>
                     <input
                       id="rsv-name"
                       type="text"
@@ -339,13 +346,13 @@ export function Reservation() {
                     />
                     {errors.name && (
                       <p className="field__error" id="rsv-name-err">
-                        {errors.name.message}
+                        {tErr(errors.name.message)}
                       </p>
                     )}
                   </div>
 
                   <div className="field">
-                    <label htmlFor="rsv-phone">Teléfono</label>
+                    <label htmlFor="rsv-phone">{r.form.phone}</label>
                     <input
                       id="rsv-phone"
                       type="tel"
@@ -353,19 +360,21 @@ export function Reservation() {
                       autoComplete="tel"
                       placeholder="+54 11 ..."
                       aria-invalid={!!errors.phone}
-                      aria-describedby={errors.phone ? "rsv-phone-err" : undefined}
+                      aria-describedby={
+                        errors.phone ? "rsv-phone-err" : undefined
+                      }
                       {...register("phone")}
                     />
                     {errors.phone && (
                       <p className="field__error" id="rsv-phone-err">
-                        {errors.phone.message}
+                        {tErr(errors.phone.message)}
                       </p>
                     )}
                   </div>
                 </div>
 
                 <div className="field">
-                  <label htmlFor="rsv-email">Email</label>
+                  <label htmlFor="rsv-email">{r.form.email}</label>
                   <input
                     id="rsv-email"
                     type="email"
@@ -376,49 +385,48 @@ export function Reservation() {
                   />
                   {errors.email && (
                     <p className="field__error" id="rsv-email-err">
-                      {errors.email.message}
+                      {tErr(errors.email.message)}
                     </p>
                   )}
                 </div>
 
                 <div className="field">
-                  <label htmlFor="rsv-occasion">Ocasión (opcional)</label>
+                  <label htmlFor="rsv-occasion">{r.form.occasion}</label>
                   <select id="rsv-occasion" {...register("occasion")}>
-                    {OCCASIONS.map((o) => (
-                      <option key={o} value={o}>
-                        {o}
+                    {OCCASION_IDS.map((id) => (
+                      <option key={id} value={id}>
+                        {r.occasions[id]}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="field">
-                  <label htmlFor="rsv-notes">
-                    Alergias, restricciones o pedidos
-                  </label>
+                  <label htmlFor="rsv-notes">{r.form.notes}</label>
                   <textarea
                     id="rsv-notes"
-                    rows={3}
+                    rows={2}
                     maxLength={NOTES_MAX}
                     aria-describedby="rsv-notes-count"
                     {...register("notes")}
                   />
-                  <p className="field__hint field__hint--count" id="rsv-notes-count">
+                  <p
+                    className="field__hint field__hint--count"
+                    id="rsv-notes-count"
+                  >
                     {notes.length}/{NOTES_MAX}
                   </p>
                   {errors.notes && (
-                    <p className="field__error">{errors.notes.message}</p>
+                    <p className="field__error">{tErr(errors.notes.message)}</p>
                   )}
                 </div>
 
                 <label className="check">
                   <input type="checkbox" {...register("consent")} />
-                  <span>
-                    Acepto que Raíz guarde estos datos para gestionar la reserva.
-                  </span>
+                  <span>{r.form.consent}</span>
                 </label>
                 {errors.consent && (
-                  <p className="field__error">{errors.consent.message}</p>
+                  <p className="field__error">{tErr(errors.consent.message)}</p>
                 )}
 
                 <button
@@ -426,15 +434,11 @@ export function Reservation() {
                   className="btn btn--solid btn--block rsv__submit"
                   disabled={busy || (submitCount > 0 && !isValid)}
                 >
-                  {busy ? "Confirmando…" : "Confirmar reserva"}
+                  {busy ? r.form.submitting : r.form.submit}
                 </button>
-                <p className="rsv__fineprint">
-                  Sin pago por adelantado. Solo pedimos la tarjeta para grupos de
-                  6 o más.
-                </p>
+                <p className="rsv__fineprint">{r.form.fineprint}</p>
               </motion.form>
             )}
-          </AnimatePresence>
         </Reveal>
       </div>
     </section>
